@@ -6,7 +6,7 @@
 🗂 **Project source bundler** — merge an entire project into a single Markdown file, ready to paste into web-based AIs  
 `(ChatGPT / Claude / Gemini / Grok / DeepSeek / GLM / Kimi …)`    
 
-`Python 3.8+` · Zero dependencies · Single-file script · v2.2.0
+`Python 3.8+` · Zero dependencies · Single-file script [proj2md](./proj2md.py) · v2.2.0
 
 </div>
 
