@@ -2,8 +2,10 @@
 
 # proj2md.py
 [简体中文](./README.md) | **English**  
-🗂 **Project source bundler** — merge an entire project into a single Markdown file, ready to paste into web-based AIs
-(ChatGPT / Claude / Gemini / DeepSeek / …)  
+
+🗂 **Project source bundler** — merge an entire project into a single Markdown file, ready to paste into web-based AIs  
+`(ChatGPT / Claude / Gemini / Grok / DeepSeek / GLM / Kimi …)`    
+
 `Python 3.8+` · Zero dependencies · Single-file script · v2.2.0
 
 </div>
@@ -11,18 +13,19 @@
 ---
 
 ## Table of Contents
-- [✨ Features](#features)
-- [🚀 Quick Start](#quick-start)
-- [📖 Common Examples](#common-examples)
-- [⚙️ CLI Options](#cli-options)
-- [🙈 Ignore Rules](#ignore-rules)
-- [🧠 Smart Ordering](#smart-ordering)
-- [📄 Generated Document Layout](#generated-document-layout)
-- [🌐 Multilingual UI](#multilingual-ui)
-- [🪟 Config File](#config-file)
-- [📏 Size & Token Budget](#size--token-budget)
-- [💡 Tips & FAQ](#tips--faq)
-- [📜 License](#license)
+
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📖 Common Examples](#-common-examples)
+- [⚙️ CLI Options](#-cli-options)
+- [🙈 Ignore Rules](#-ignore-rules)
+- [🧠 Smart Ordering](#-smart-ordering)
+- [📄 Generated Document Layout](#-generated-document-layout)
+- [🌐 Multilingual UI](#-multilingual-ui)
+- [🪟 Config File](#-config-file)
+- [📏 Size & Token Budget](#-size--token-budget)
+- [💡 Tips & FAQ](#-tips--faq)
+- [📜 License](#-license)
 
 ## ✨ Features
 - 🗂 **One-command bundling**: walks the whole project and merges code / config / docs into one `.md` file
@@ -133,6 +136,7 @@ Applied in order — the first matching rule skips the file:
 4. **Glob blacklist**: `*.min.js`, `*.png`, `*.zip`, `*.log`, … + `--exclude-pattern`
 5. **Extension whitelist**: only whitelisted extensions are collected → tune via `--ext` / `--only-ext` / `--any-text`
 > ⭐ `--include-pattern` has top priority: matching files are force-included even if they hit any rule above, and the rule can pierce the hidden-dir filter.
+
 Also note:
 - The output file, config file and the script itself are always self-excluded;
 - Binary-looking / undecodable / oversized files are not silently lost — they are listed in the appendix;
