@@ -2,11 +2,11 @@
 
 # proj2md.py
 **简体中文** | [English](./README_EN.md)  
-
+  
 🗂 **项目源码一键拼接工具** —— 把整个项目合并成一份 Markdown，直接投喂给网页端 AI  
 `(ChatGPT / Claude / Gemini / Grok / DeepSeek / GLM / Kimi …) ` 
 
-`Python 3.8+` · 零第三方依赖 · 单文件脚本 · v2.2.0  
+`Python 3.8+` · 零第三方依赖 · 单文件脚本 [proj2md](./proj2md.py) · v2.2.0  
 
 </div>
 
