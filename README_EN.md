@@ -1,0 +1,228 @@
+﻿<div align="center">
+
+# proj2md.py
+[简体中文](./README.md) | **English**  
+🗂 **Project source bundler** — merge an entire project into a single Markdown file, ready to paste into web-based AIs
+(ChatGPT / Claude / Gemini / DeepSeek / …)  
+`Python 3.8+` · Zero dependencies · Single-file script · v2.2.0
+
+</div>
+
+---
+
+## Table of Contents
+- [✨ Features](#features)
+- [🚀 Quick Start](#quick-start)
+- [📖 Common Examples](#common-examples)
+- [⚙️ CLI Options](#cli-options)
+- [🙈 Ignore Rules](#ignore-rules)
+- [🧠 Smart Ordering](#smart-ordering)
+- [📄 Generated Document Layout](#generated-document-layout)
+- [🌐 Multilingual UI](#multilingual-ui)
+- [🪟 Config File](#config-file)
+- [📏 Size & Token Budget](#size--token-budget)
+- [💡 Tips & FAQ](#tips--faq)
+- [📜 License](#license)
+
+## ✨ Features
+- 🗂 **One-command bundling**: walks the whole project and merges code / config / docs into one `.md` file
+- 📑 **Structured output**: metadata + directory tree + file index table + syntax-highlighted code blocks + appendices
+- 🔗 **File index**: anchor links and "start line" numbers for every file — quick lookup for both AI and humans
+- 🧠 **Smart ordering**: README, manifests and entry files come first, so the AI reads the most important content early
+- 🔢 **Precise citation**: `--line-numbers` prefixes body lines so the AI can cite `path:line`
+- 📏 **Size control**: per-file line limit / per-file size cap / total budget / automatic token-based splitting
+- 🙈 **Five-layer ignore rules**: hidden dirs → dir blacklist → file blacklist → globs → extension whitelist, with `--include-pattern` piercing everything
+- 🌐 **Multilingual UI**: follows the system language by default; `--lang zh / en` to switch (help, reports and generated docs all follow)
+- 🎯 **Request up front**: `--prompt` puts your task at the very top of the bundle
+- 📋 **Clipboard**: cross-platform `--clip` (pyperclip / PowerShell / pbcopy / wl-copy / xclip / xsel)
+- 🈶 **Encoding friendly**: auto-detects UTF-8 / GBK / Big5 / Latin-1; falls back to ASCII symbols on limited terminals
+- 🪟 **Config file**: persist every option in `proj2md.json`; `--init-config` writes a template
+- 👀 **Dry-run preview**: see exactly what would be bundled before writing anything
+## 🚀 Quick Start
+No installation needed (the only optional dependency is `pyperclip`, used by `--clip`):
+
+```bash
+# Bundle current directory -> project_bundle.md
+python proj2md.py
+# Bundle a specific project and copy to clipboard
+python proj2md.py /path/to/project --clip
+# Attach your request along with the code
+python proj2md.py --prompt "Find potential bugs and suggest fixes"
+```
+
+Then paste the content of `project_bundle.md` straight into a web AI — code blocks get automatic syntax highlighting.
+
+## 📖 Common Examples
+```bash
+python proj2md.py --only-ext py md            # bundle only Python and Markdown
+python proj2md.py --ext proto graphql         # add extensions on top of defaults
+python proj2md.py --exclude-dir tests docs    # exclude extra directories
+python proj2md.py --include-pattern "src/*"   # force-include (top priority)
+python proj2md.py --include-hidden            # don't ignore dot-prefixed folders
+python proj2md.py --include-pattern ".github/*"  # fish back one hidden dir
+python proj2md.py --line-numbers              # line-numbered body for precise refs
+python proj2md.py --max-file-lines 300        # truncate files beyond 300 lines
+python proj2md.py --max-total-kb 200          # 200KB total budget
+python proj2md.py --split-tokens 60000        # auto-split into volumes
+python proj2md.py --lang zh                   # switch UI to Chinese
+python proj2md.py --dry-run                   # preview only
+python proj2md.py --init-config               # write config template
+```
+## ⚙️ CLI Options
+
+**Input & output**
+
+| Option | Description |
+|---|---|
+| `root` (positional) | project root directory (default: current directory) |
+| `-o, --output <file>` | output file path (default `project_bundle.md`) |
+| `--stdout` | print to stdout instead of writing a file |
+| `--clip` | copy the result to the system clipboard |
+
+**File scope**
+
+| Option | Description |
+|---|---|
+| `--ext <ext...>` | **append** extensions to the default whitelist |
+| `--only-ext <ext...>` | only include these extensions (**replaces** defaults) |
+| `--any-text` | include every non-binary text file |
+| `--include-hidden` | don't ignore dot-prefixed folders |
+| `--exclude-dir <dir...>` | extra directories to exclude |
+| `--exclude-file <name...>` | extra file names to exclude |
+| `--exclude-pattern <pat...>` | extra glob patterns, e.g. `*.min.js tests/*` |
+| `--include-pattern <pat...>` | force-include (highest priority, pierces all rules) |
+
+**Size control**
+
+| Option | Description |
+|---|---|
+| `--max-file-lines <n>` | keep at most n lines per file (0 = unlimited) |
+| `--max-file-kb <kb>` | skip files larger than this (default 512) |
+| `--max-total-kb <kb>` | total size budget for the bundle (KB) |
+| `--split-tokens <n>` | split into multiple `.partN.md` volumes by token estimate |
+
+**Output content**
+
+| Option | Description |
+|---|---|
+| `--line-numbers` | prefix each body line with its number |
+| `--prompt <text>` | attach your request at the top of the bundle |
+| `--prompt-file <file>` | read the request from a file (UTF-8) |
+| `--no-tree` / `--no-index` | omit directory tree / file index |
+| `--no-ai-header` | omit the "Reading Notes for AI" section |
+| `--no-smart-order` | disable smart ordering |
+
+**Misc**
+
+| Option | Description |
+|---|---|
+| `--lang <auto\|zh\|en>` | UI language (default: auto = follow system) |
+| `--config <file>` / `--no-config` | specify / ignore the config file |
+| `--init-config` | write a `proj2md.json` template, then exit |
+| `--dry-run` | preview files and stats without writing |
+| `--quiet` | quiet mode; print only the result path |
+| `--version` / `-h, --help` | version / help |
+
+## 🙈 Ignore Rules
+
+Applied in order — the first matching rule skips the file:
+
+1. **Hidden dirs** (on by default): dot-prefixed folders are pruned entirely → disable with `--include-hidden`
+2. **Dir blacklist**: built-ins (`node_modules`, `__pycache__`, `venv`, `dist`, `build`, …) + `--exclude-dir`
+3. **File blacklist**: lock files (`package-lock.json`, `poetry.lock`, …) + `--exclude-file`
+4. **Glob blacklist**: `*.min.js`, `*.png`, `*.zip`, `*.log`, … + `--exclude-pattern`
+5. **Extension whitelist**: only whitelisted extensions are collected → tune via `--ext` / `--only-ext` / `--any-text`
+> ⭐ `--include-pattern` has top priority: matching files are force-included even if they hit any rule above, and the rule can pierce the hidden-dir filter.
+Also note:
+- The output file, config file and the script itself are always self-excluded;
+- Binary-looking / undecodable / oversized files are not silently lost — they are listed in the appendix;
+- Dot-prefixed **files** (like `.gitignore`) are not affected by the hidden-dir rule and are collected normally.
+
+## 🧠 Smart Ordering
+
+Files inside the bundle are sorted by priority so the AI reads key content first:
+
+| Priority | File type |
+|:---:|---|
+| 0 | `README*` |
+| 1 | Manifests & config: `package.json`, `pyproject.toml`, `requirements.txt`, `Dockerfile`, `.gitignore`, … |
+| 2 | Entry files (`main` / `app` / `index` / `server` / `cli`…) and `config` / `settings` |
+| 3 | Everything else (sorted by path) |
+
+## 📄 Generated Document Layout
+
+```
+# Project Code Bundle: <name>
+├─ Metadata (generated at / file count / lines / token estimate)
+├─ 📖 Reading Notes for AI (citation conventions, etc.)
+├─ 🎯 My Request (--prompt, if provided)
+├─ 🗂 Directory Tree
+├─ 📑 File Index (anchor links + start lines)
+├─ 📄 Source Code (### No. relative/path + highlighted code blocks)
+├─ 📎 Appendix: Files Not Included
+├─ 📎 Appendix: Ignored Hidden Directories
+└─ END footer with totals
+```
+
+Even if the source contains ` ``` ` fences, the structure stays intact — fence length adapts automatically.
+
+## 🌐 Multilingual UI
+
+Resolution order: **`--lang` flag > config file `language` field > system auto-detection > English fallback**.
+
+```bash
+python proj2md.py --lang en      # English for this run (help & reports included)
+python proj2md.py --lang zh      # force Chinese
+python proj2md.py --lang auto    # follow system (overrides config file)
+```
+
+- `auto` (default): probes environment variables (`LC_ALL` / `LANG`…) → the `locale` module → the Windows UI-language API; anything starting with `zh` maps to Chinese, otherwise English;
+- You can also persist it in `proj2md.json` as `"language": "zh"`;
+- Switching affects more than console output — titles, AI reading notes, index headers and appendices inside the generated `.md` follow the language too.
+
+## 🪟 Config File
+
+```bash
+python proj2md.py --init-config   # write proj2md.json template
+```
+
+Edit as needed; it is picked up automatically on the next run:
+
+```json
+{
+  "language": "auto",
+  "output": "project_bundle.md",
+  "exts": [],
+  "line_numbers": true,
+  "max_file_lines": 400,
+  "exclude_dirs": ["docs", "benchmarks"],
+  "include_patterns": [],
+  "split_tokens": 0,
+  "clip": false
+}
+```
+
+Priority: **CLI arguments > config file > built-in defaults** ; unneeded keys can simply be deleted.
+
+## 📏 Size & Token Budget
+
+Tokens are roughly estimated (CJK ≈ 1.1 tokens/char, others ≈ 3.8 chars/token); a hint is printed after generation:
+
+| Estimated tokens | Advice |
+|---|---|
+| < 30k | ✅ Moderate — paste directly |
+| 30k – 100k | ⚠️ Some input boxes have limits; consider trimming |
+| 100k – 200k | ⚠️ Needs a long-context model, or split with `--split-tokens` |
+| > 200k | ❌ Trim (`--exclude-dir` / `--max-file-lines` / `--only-ext`) or split |
+
+## 💡 Tips & FAQ
+
+- **Precise citations**: ask the AI (via `--prompt`) to cite code as `relative/path:line`; combine with `--line-numbers` for best results.
+- **Split volumes**: `--split-tokens` produces `xxx.part1.md`, `xxx.part2.md`… — feed them in order; appendices only appear in the last part.
+- **AI forgot the layout?** Re-paste just the "Directory Tree" and "File Index" sections instead of the whole bundle.
+- **Garbled Chinese on Windows?** The script auto-degrades CJK symbols to ASCII; you can also run `chcp 65001` first.
+- **`--clip` failing?** `pip install pyperclip`, or copy manually from the output file.
+- **Full-control mode**: `--any-text` plus `--include-hidden` collects every text file in the project.
+
+## 📜 License
+[MIT](./LICENSE) © 2025
